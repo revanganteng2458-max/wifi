@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f4f6f2">
+	<title>Login Admin | Catatan Wi-Fi</title>
+	<style>
+		* { box-sizing: border-box; }
+		body {
+			min-height: 100vh;
+			margin: 0;
+			display: grid;
+			place-items: center;
+			padding: 24px;
+			color: #202b29;
+			background: radial-gradient(ellipse at 15% 10%, #d9eee7 0, transparent 38%), #f4f6f2;
+			font-family: "Segoe UI", sans-serif;
+		}
+		.login {
+			display: grid;
+			grid-template-columns: minmax(230px, 0.9fr) minmax(300px, 1.1fr);
+			width: min(780px, 100%);
+			overflow: hidden;
+			border: 1px solid #dce4df;
+			border-radius: 12px;
+			background: #fff;
+			box-shadow: 0 22px 70px #17352a14;
+			animation: enter 420ms ease-out both;
+		}
+		.intro {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			min-height: 390px;
+			padding: 36px;
+			color: #f5fbf7;
+			background: linear-gradient(145deg, #173d35, #246653);
+		}
+		.brand { font-size: 14px; font-weight: 700; letter-spacing: .04em; }
+		.brand-mark {
+			display: inline-grid;
+			width: 30px;
+			height: 30px;
+			margin-right: 9px;
+			place-items: center;
+			border-radius: 8px;
+			color: #173d35;
+			background: #c6ed76;
+			vertical-align: middle;
+		}
+		.intro h1 { max-width: 260px; margin: 0 0 12px; font-size: 32px; line-height: 1.12; }
+		.intro p { max-width: 270px; margin: 0; color: #d0e3d9; font-size: 14px; line-height: 1.6; }
+		.form-wrap { align-self: center; padding: 48px 44px; }
+		.form-wrap h2 { margin: 0 0 8px; font-size: 24px; }
+		.form-wrap > p { margin: 0 0 30px; color: #68746f; font-size: 14px; }
+		label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
+		input {
+			width: 100%;
+			height: 48px;
+			padding: 0 13px;
+			border: 1px solid #cbd6d0;
+			border-radius: 6px;
+			color: #202b29;
+			background: #fff;
+			font: inherit;
+		}
+		input:focus { outline: 3px solid #c6ed7666; border-color: #39745f; }
+		button {
+			width: 100%;
+			height: 48px;
+			margin-top: 18px;
+			border: 0;
+			border-radius: 6px;
+			color: #173d35;
+			background: #c6ed76;
+			font: inherit;
+			font-weight: 700;
+			cursor: pointer;
+			transition: background 150ms ease, transform 150ms ease;
+		}
+		button:hover { background: #b8e65e; }
+		button:active { transform: translateY(1px); }
+		.error { min-height: 20px; margin: 12px 0 0; color: #b42318; font-size: 13px; }
+		@keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+		@media (max-width: 620px) {
+			body { padding: 16px; }
+			.login { grid-template-columns: 1fr; max-width: 420px; }
+			.intro { min-height: 190px; padding: 24px; }
+			.intro h1 { margin-top: 28px; font-size: 26px; }
+			.intro p { display: none; }
+			.form-wrap { padding: 32px 24px; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<main class="login">
+		<section class="intro" aria-label="Catatan Wi-Fi">
+			<div class="brand"><span class="brand-mark" aria-hidden="true">W</span>CATATAN WI-FI</div>
+			<div>
+				<h1>Ruang admin Anda.</h1>
+				<p>Masuk untuk melanjutkan ke dashboard pengelolaan.</p>
+			</div>
+		</section>
+		<section class="form-wrap">
+			<h2>Login admin</h2>
+			<p>Masukkan password admin untuk melanjutkan.</p>
+			<form id="login-form">
+				<label for="password">Password</label>
+				<input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+				<button type="submit">Masuk</button>
+				<p id="login-error" class="error" role="alert" aria-live="polite"></p>
+			</form>
+		</section>
+	</main>
+	<script>
+		const ADMIN_PASSWORD = "podosari123";
+		const form = document.getElementById("login-form");
+		const passwordInput = document.getElementById("password");
+		const errorMessage = document.getElementById("login-error");
+
+		form.addEventListener("submit", (event) => {
+			event.preventDefault();
+
+			if (passwordInput.value !== ADMIN_PASSWORD) {
+				errorMessage.textContent = "Password salah. Silakan coba lagi.";
+				passwordInput.focus();
+				return;
+			}
+
+			sessionStorage.setItem("loggedIn", "true");
+			window.location.assign("dashboard.html");
+		});
+	</script>
+</body>
+</html>

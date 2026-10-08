@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f4f6f2">
+	<title>Catatan Pengguna Wi-Fi</title>
+	<style>
+		* { box-sizing: border-box; }
+		body {
+			min-height: 100vh;
+			margin: 0;
+			padding: 28px;
+			color: #202b29;
+			background: radial-gradient(ellipse at 10% 0, #d9eee7 0, transparent 34%), #f4f6f2;
+			font-family: "Segoe UI", sans-serif;
+		}
+		.container { width: min(900px, 100%); margin: 0 auto; }
+		header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			margin-bottom: 26px;
+		}
+		.brand { color: #173d35; font-size: 14px; font-weight: 800; letter-spacing: .04em; }
+		.brand-mark {
+			display: inline-grid;
+			width: 32px;
+			height: 32px;
+			margin-right: 9px;
+			place-items: center;
+			border-radius: 9px;
+			color: #173d35;
+			background: #c6ed76;
+			vertical-align: middle;
+		}
+		.panel, .stat {
+			border: 1px solid #dce4df;
+			border-radius: 12px;
+			background: #fff;
+			box-shadow: 0 18px 55px #17352a10;
+		}
+		.panel { padding: 26px; margin-bottom: 20px; }
+		h1 { margin: 0 0 7px; color: #173d35; font-size: clamp(24px, 4vw, 32px); }
+		h2 { margin: 0 0 18px; color: #173d35; font-size: 19px; }
+		.subtitle, .muted { margin: 0; color: #68746f; font-size: 14px; line-height: 1.6; }
+		button {
+			min-height: 42px;
+			padding: 10px 15px;
+			border: 0;
+			border-radius: 6px;
+			color: #173d35;
+			background: #c6ed76;
+			font: inherit;
+			font-weight: 700;
+			cursor: pointer;
+		}
+		button:hover { background: #b8e65e; }
+		button:focus-visible, input:focus-visible {
+			outline: 3px solid #39745f55;
+			outline-offset: 2px;
+		}
+		.button-secondary { border: 1px solid #cbd6d0; background: #fff; }
+		.button-secondary:hover { background: #f4f6f2; }
+		.button-danger { min-height: 34px; padding: 7px 10px; color: #a12a20; border: 1px solid #f0c8c4; background: #fff; font-size: 13px; }
+		.button-danger:hover { background: #fff3f1; }
+		.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+		.stat { padding: 18px; }
+		.stat-label { margin: 0 0 8px; color: #68746f; font-size: 13px; }
+		.stat-value { margin: 0; color: #173d35; font-size: 28px; font-weight: 800; }
+		.stat-detail { margin: 4px 0 0; color: #68746f; font-size: 12px; }
+		.form-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; }
+		label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+		input {
+			width: 100%;
+			min-height: 44px;
+			padding: 10px 12px;
+			border: 1px solid #cbd6d0;
+			border-radius: 6px;
+			color: #202b29;
+			background: #fff;
+			font: inherit;
+		}
+		.form-actions { display: flex; gap: 10px; margin-top: 18px; }
+		.form-actions button { min-width: 150px; }
+		.form-message, .notice { min-height: 21px; margin: 12px 0 0; color: #b42318; font-size: 13px; }
+		.toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 14px;
+			margin-bottom: 16px;
+		}
+		.toolbar h2 { margin: 0; }
+		.search { width: min(300px, 100%); }
+		.table-wrap { overflow-x: auto; }
+		table { width: 100%; border-collapse: collapse; text-align: left; }
+		th, td { padding: 12px 10px; border-bottom: 1px solid #e5ebe7; font-size: 14px; }
+		th { color: #68746f; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+		td:first-child { color: #173d35; font-weight: 700; }
+		.empty-state { padding: 30px 14px; color: #68746f; text-align: center; }
+		.empty-state strong { display: block; margin-bottom: 5px; color: #173d35; }
+		@media (max-width: 640px) {
+			body { padding: 16px; }
+			.panel { padding: 20px; }
+			.stats { gap: 8px; }
+			.stat { padding: 13px; }
+			.stat-value { font-size: 23px; }
+			.form-grid { grid-template-columns: 1fr; }
+		}
+		@media (max-width: 440px) {
+			.toolbar { align-items: stretch; flex-direction: column; }
+			.search { width: 100%; }
+			.stats { grid-template-columns: 1fr; }
+			.stat { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+			.stat-label { margin: 0; }
+			.stat-detail { display: none; }
+			.stat-value { font-size: 21px; }
+			th, td { padding: 10px 7px; font-size: 12px; }
+			.form-actions button { flex: 1; min-width: 0; }
+		}
+	</style>
+</head>
+<body>
+	<main class="container">
+		<header>
+			<div class="brand"><span class="brand-mark" aria-hidden="true">W</span>CATATAN WI-FI</div>
+			<button id="logout-button" class="button-secondary" type="button">Keluar</button>
+		</header>
+
+		<section aria-labelledby="page-title">
+			<h1 id="page-title">Catatan Pengguna Wi-Fi</h1>
+			<p class="subtitle">Catat nama, tanggal, dan waktu orang yang menggunakan Wi-Fi.</p>
+		</section>
+
+		<section class="stats" aria-label="Ringkasan catatan">
+			<article class="stat">
+				<p class="stat-label">Orang berbeda hari ini</p>
+				<p id="today-people" class="stat-value">0</p>
+				<p class="stat-detail">Dihitung berdasarkan nama</p>
+			</article>
+			<article class="stat">
+				<p class="stat-label">Catatan hari ini</p>
+				<p id="today-count" class="stat-value">0</p>
+				<p class="stat-detail">Jumlah sesi yang dicatat</p>
+			</article>
+			<article class="stat">
+				<p class="stat-label">Total catatan</p>
+				<p id="total-count" class="stat-value">0</p>
+				<p class="stat-detail">Semua tanggal</p>
+			</article>
+		</section>
+
+		<section class="panel" aria-labelledby="form-title">
+			<h2 id="form-title">Tambah catatan</h2>
+			<form id="usage-form">
+				<div class="form-grid">
+					<div>
+						<label for="person-name">Nama *</label>
+						<input id="person-name" name="name" maxlength="100" autocomplete="name" placeholder="Contoh: Budi" required>
+					</div>
+					<div>
+						<label for="usage-date">Tanggal *</label>
+						<input id="usage-date" name="date" type="date" required>
+					</div>
+					<div>
+						<label for="usage-time">Waktu *</label>
+						<input id="usage-time" name="time" type="time" required>
+					</div>
+				</div>
+				<div class="form-actions">
+					<button id="submit-button" type="submit">Simpan catatan</button>
+					<button id="cancel-edit" class="button-secondary" type="button" hidden>Batal</button>
+				</div>
+				<p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
+			</form>
+		</section>
+
+		<section class="panel" aria-labelledby="records-title">
+			<div class="toolbar">
+				<div>
+					<h2 id="records-title">Daftar pengguna</h2>
+					<p id="record-count" class="muted">0 catatan</p>
+				</div>
+				<input id="search-input" class="search" type="search" placeholder="Cari nama..." aria-label="Cari nama">
+			</div>
+			<p id="storage-message" class="notice" role="alert" aria-live="polite"></p>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr><th>Nama</th><th>Tanggal</th><th>Waktu</th><th>Aksi</th></tr>
+					</thead>
+					<tbody id="records-list"></tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+
+	<script>
+		if (sessionStorage.getItem("loggedIn") !== "true") {
+			window.location.replace("index.html");
+		}
+
+		const STORAGE_KEY = "wifiUsageRecords";
+		const form = document.getElementById("usage-form");
+		const formTitle = document.getElementById("form-title");
+		const formMessage = document.getElementById("form-message");
+		const storageMessage = document.getElementById("storage-message");
+		const recordsList = document.getElementById("records-list");
+		const searchInput = document.getElementById("search-input");
+		const submitButton = document.getElementById("submit-button");
+		const cancelEditButton = document.getElementById("cancel-edit");
+		let records = [];
+		let editingId = null;
+		let storageReady = true;
+
+		function getToday() {
+			const now = new Date();
+			const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+			return localDate.toISOString().slice(0, 10);
+		}
+
+		function getCurrentTime() {
+			const now = new Date();
+			return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+		}
+
+		function showStorageError(message) {
+			storageMessage.textContent = message;
+			storageReady = false;
+			form.querySelectorAll("input, button").forEach((control) => {
+				control.disabled = true;
+			});
+		}
+
+		function loadRecords() {
+			try {
+				const savedRecords = localStorage.getItem(STORAGE_KEY);
+				if (savedRecords === null) return;
+				const parsedRecords = JSON.parse(savedRecords);
+				if (!Array.isArray(parsedRecords)) throw new Error("Format catatan tidak valid");
+
+				records = parsedRecords.map((record) => {
+					if (!record || typeof record.id !== "string" || typeof record.name !== "string" ||
+						typeof record.date !== "string") {
+						throw new Error("Ada catatan yang formatnya tidak valid");
+					}
+					const time = typeof record.time === "string" ? record.time : record.startTime;
+					if (typeof time !== "string") throw new Error("Waktu catatan tidak valid");
+					return { id: record.id, name: record.name, date: record.date, time };
+				});
+			} catch (error) {
+				console.error("Gagal memuat catatan pengguna Wi-Fi:", error);
+				showStorageError("Catatan tidak dapat dibaca. Data lama tetap aman dan tidak diubah.");
+			}
+		}
+
+		function saveRecords(nextRecords) {
+			try {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(nextRecords));
+				records = nextRecords;
+				storageMessage.textContent = "";
+				return true;
+			} catch (error) {
+				console.error("Gagal menyimpan catatan pengguna Wi-Fi:", error);
+				storageMessage.textContent = "Catatan gagal disimpan. Periksa ruang penyimpanan browser, lalu coba lagi.";
+				return false;
+			}
+		}
+
+		function updateStats() {
+			const todayRecords = records.filter((record) => record.date === getToday());
+			const uniqueNames = new Set(todayRecords.map((record) => record.name.trim().toLocaleLowerCase("id")));
+			document.getElementById("today-people").textContent = uniqueNames.size;
+			document.getElementById("today-count").textContent = todayRecords.length;
+			document.getElementById("total-count").textContent = records.length;
+			document.getElementById("record-count").textContent = `${records.length} catatan`;
+		}
+
+		function renderRecords() {
+			const query = searchInput.value.trim().toLocaleLowerCase("id");
+			const visibleRecords = records
+				.filter((record) => record.name.toLocaleLowerCase("id").includes(query))
+				.slice()
+				.sort((first, second) => {
+					const dateOrder = second.date.localeCompare(first.date);
+					return dateOrder || second.time.localeCompare(first.time);
+				});
+			recordsList.replaceChildren();
+
+			if (visibleRecords.length === 0) {
+				const row = document.createElement("tr");
+				const cell = document.createElement("td");
+				cell.colSpan = 4;
+				cell.className = "empty-state";
+				const title = document.createElement("strong");
+				title.textContent = query ? "Nama tidak ditemukan" : "Belum ada catatan";
+				const message = document.createElement("span");
+				message.textContent = query ? "Coba nama lain." : "Tambahkan nama pengguna Wi-Fi melalui formulir di atas.";
+				cell.append(title, message);
+				row.append(cell);
+				recordsList.append(row);
+			} else {
+				visibleRecords.forEach((record) => {
+					const row = document.createElement("tr");
+					const nameCell = document.createElement("td");
+					const dateCell = document.createElement("td");
+					const timeCell = document.createElement("td");
+					const actionCell = document.createElement("td");
+					nameCell.textContent = record.name;
+					dateCell.textContent = record.date;
+					timeCell.textContent = record.time;
+
+					const editButton = document.createElement("button");
+					editButton.className = "button-secondary";
+					editButton.type = "button";
+					editButton.textContent = "Ubah";
+					editButton.addEventListener("click", () => beginEdit(record));
+					const deleteButton = document.createElement("button");
+					deleteButton.className = "button-danger";
+					deleteButton.type = "button";
+					deleteButton.textContent = "Hapus";
+					deleteButton.setAttribute("aria-label", `Hapus catatan ${record.name} tanggal ${record.date} waktu ${record.time}`);
+					deleteButton.addEventListener("click", () => deleteRecord(record));
+					actionCell.append(editButton, document.createTextNode(" "), deleteButton);
+					row.append(nameCell, dateCell, timeCell, actionCell);
+					recordsList.append(row);
+				});
+			}
+			updateStats();
+		}
+
+		function resetForm() {
+			form.reset();
+			form.elements.date.value = getToday();
+			form.elements.time.value = getCurrentTime();
+			editingId = null;
+			formTitle.textContent = "Tambah catatan";
+			submitButton.textContent = "Simpan catatan";
+			cancelEditButton.hidden = true;
+			formMessage.textContent = "";
+		}
+
+		function beginEdit(record) {
+			editingId = record.id;
+			form.elements.name.value = record.name;
+			form.elements.date.value = record.date;
+			form.elements.time.value = record.time;
+			formTitle.textContent = "Ubah catatan";
+			submitButton.textContent = "Simpan perubahan";
+			cancelEditButton.hidden = false;
+			formMessage.textContent = "";
+			document.getElementById("person-name").focus();
+			form.scrollIntoView({ behavior: "smooth", block: "start" });
+		}
+
+		function deleteRecord(record) {
+			if (!window.confirm(`Hapus catatan untuk "${record.name}"?`)) return;
+			const nextRecords = records.filter((item) => item.id !== record.id);
+			if (saveRecords(nextRecords)) {
+				if (editingId === record.id) resetForm();
+				renderRecords();
+			}
+		}
+
+		form.addEventListener("submit", (event) => {
+			event.preventDefault();
+			if (!storageReady) return;
+			const formData = new FormData(form);
+			const record = {
+				id: editingId || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+				name: formData.get("name").trim(),
+				date: formData.get("date"),
+				time: formData.get("time")
+			};
+			if (!record.name || !record.date || !record.time) {
+				formMessage.textContent = "Nama, tanggal, dan waktu wajib diisi.";
+				return;
+			}
+			const nextRecords = editingId
+				? records.map((item) => item.id === editingId ? record : item)
+				: [...records, record];
+			if (saveRecords(nextRecords)) {
+				resetForm();
+				renderRecords();
+			}
+		});
+
+		cancelEditButton.addEventListener("click", resetForm);
+		searchInput.addEventListener("input", renderRecords);
+		document.getElementById("logout-button").addEventListener("click", () => {
+			sessionStorage.removeItem("loggedIn");
+			window.location.replace("index.html");
+		});
+
+		loadRecords();
+		resetForm();
+		renderRecords();
+	</script>
+</body>
+</html>
